@@ -12,7 +12,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					background: "white",
 					initial: "white"
 				}
-			]
+			],
+			urlBase: "https://www.swapi.tech/api",
+			people: JSON.parse(localStorage.getItem("people")) || []
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -20,6 +22,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				getActions().changeColor(0, "green");
 			},
 			loadSomeData: () => {
+				Raquila
 				/**
 					fetch().then().then(data => setStore({ "foo": data.bar }))
 				*/
@@ -37,6 +40,30 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
+			},
+			getAllPeople: async () => {
+				const store = getStore()
+				try {
+					if (store.people <= 0) {
+						let response = await fetch(`${store.urlBase}/people`)
+						let data = await response.json()
+
+						for (let item of data.results) {
+							let responseDetail = await fetch(`${item.url}`)
+							let dataDetail = await responseDetail.json()
+							console.log(dataDetail.result)
+							setStore({
+								people: [...store.people, dataDetail.result]
+							})
+						}
+
+						localStorage.setItem("people", JSON.stringify(store.people))
+					}
+
+
+				} catch (error) {
+					console.log(error)
+				}
 			}
 		}
 	};
